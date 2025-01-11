@@ -12,6 +12,9 @@ services:
             - EMAIL_USERNAME=${EMAIL_USERNAME}
             - EMAIL_PASSWORD=${EMAIL_PASSWORD}
             - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+            - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+            - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+            - MAILGUN_IS_EU_TRUE_FALSE=${MAILGUN_IS_EU_TRUE_FALSE}
             - VITE_JURY_NAME=${JURY_NAME}
             - PORT=8000
         build:

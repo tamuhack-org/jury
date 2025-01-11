@@ -145,7 +145,8 @@ func mailgunEmail(mailgunApiKey string, mailgunDomain string, mailgunIsEu string
 	}
 
 	//The message object allows you to add attachments and Bcc recipients
-	message := mailgun.NewMessage(from, subject, string(htmlContent), to)
+	message := mailgun.NewMessage(from, subject, "", to)
+	message.SetHTML(string(htmlContent))
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()

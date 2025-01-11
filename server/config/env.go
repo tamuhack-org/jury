@@ -21,7 +21,7 @@ func CheckEnv() {
 
 	// Check to see if either all smtp envs, all sendgrid envs, or all mailgun envs are defined
 	if !util.All(util.Map(smtpEnvs, hasEnv)) && !util.All(util.Map(sendgridEnvs, hasEnv)) && !util.All(util.Map(mailgunEnvs, hasEnv)) {
-		log.Fatalf("ERROR: either all envs for smtp, sendgrid, or maigun must be defined (one of these sets): %v OR %v OR %v\n", smtpEnvs, sendgridEnvs, mailgunEnvs)
+		log.Fatalf("ERROR: either all envs for smtp, sendgrid, or mailgun must be defined (one of these sets): %v OR %v OR %v\n", smtpEnvs, sendgridEnvs, mailgunEnvs)
 	}
 }
 
