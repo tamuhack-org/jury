@@ -1,6 +1,9 @@
 import Cookies from 'universal-cookie';
 
-const BACKEND_URL = import.meta.env.VITE_JURY_URL;
+// const BACKEND_URL = import.meta.env.VITE_JURY_URL;
+// TAMUhack fix lol
+const BACKEND_URL = "";
+
 
 export async function getRequest<T>(path: string, auth: string): Promise<FetchResponse<T>> {
     try {
@@ -36,8 +39,6 @@ export async function postRequest<T>(
             headers: createHeaders(auth, true),
             body: body ? JSON.stringify(body) : null,
         };
-        console.log("Sending request to " + `${BACKEND_URL}${path}`);
-        console.log("Backend URL: " + BACKEND_URL);
         const response = await fetch(`${BACKEND_URL}${path}`, options);
         
         try {
