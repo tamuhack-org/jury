@@ -2,17 +2,21 @@ package funcs
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
 	"html/template"
 	"net"
 	"net/smtp"
+	"strings"
 	"server/config"
 	"server/models"
 	"time"
 
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
+
+	"github.com/mailgun/mailgun-go/v4"
 )
 
 // CheckEmail checks to see if the email is valid
@@ -23,6 +27,14 @@ func CheckEmail(email string) bool {
 
 // SendJudgeEmail sends an email to the judge with their code
 func SendJudgeEmail(judge *models.Judge, hostname string) error {
+	// If mailgun API key exists, send email with mailgun
+	mailgunApiKey := config.GetOptEnv("MAILGUN_API_KEY", "")
+	mailgunDomain := config.GetOptEnv("MAILGUN_DOMAIN", "")
+	mailgunIsEu := config.GetOptEnv("MAILGUN_IS_EU_TRUE_FALSE", "false")
+	if mailgunApiKey != "" && mailgunDomain != "" {
+		return mailgunEmail(mailgunApiKey, mailgunDomain, mailgunIsEu, judge, hostname)
+	}
+
 	// If sendgrid API key exists, send email with sendgrid
 	sendgridApiKey := config.GetOptEnv("SENDGRID_API_KEY", "")
 	if sendgridApiKey != "" {
@@ -109,6 +121,47 @@ func sendgridEmail(sendgridApiKey string, judge *models.Judge, hostname string) 
 	return err
 }
 
+// Send email with Mailgun
+func mailgunEmail(mailgunApiKey string, mailgunDomain string, mailgunIsEu string, judge *models.Judge, hostname string) error {
+	// taken from https://documentation.mailgun.com/docs/mailgun/sdk/go_sdk/
+	appName := config.GetEnv("VITE_JURY_NAME")
+
+	// Create an instance of the Mailgun Client
+	mg := mailgun.NewMailgun(mailgunDomain, mailgunApiKey)
+	
+	//When you have an EU-domain, you must specify the endpoint:
+	if strings.ToLower(mailgunIsEu) == "true" {
+		mg.SetAPIBase("https://api.eu.mailgun.net/v3")
+	}
+
+
+	from := formatEmailWithName(config.GetEnv("EMAIL_FROM_NAME"), config.GetEnv("EMAIL_FROM"))
+	subject := "Jury Judging Platform [" + appName + "]"
+	to := formatEmailWithName(judge.Name, judge.Email)
+
+	htmlContent, err := FillTemplate(judge.Name, hostname, judge.Code, appName)
+	if err != nil {
+		return err
+	}
+
+	//The message object allows you to add attachments and Bcc recipients
+	message := mailgun.NewMessage(from, subject, string(htmlContent), to)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	// Send the message with a 10-second timeout
+	_, _, err = mg.Send(ctx, message)
+
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Printf("ID: %s Resp: %s\n", id, resp)
+
+	return err
+}
+
 func sendEmailWithTimeout(host string, port string, auth smtp.Auth, from string, to []string, body []byte) error {
 	// Dial SMTP with 5 second timeout
 	conn, err := net.DialTimeout("tcp", host+":"+port, 5*time.Second)
@@ -163,4 +216,8 @@ func sendEmailWithTimeout(host string, port string, auth smtp.Auth, from string,
 	}
 
 	return nil
+}
+
+func formatEmailWithName(name string, email string) string {
+	return fmt.Sprintf("%s <%s>", name, email)
 }
