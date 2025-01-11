@@ -36,6 +36,8 @@ export async function postRequest<T>(
             headers: createHeaders(auth, true),
             body: body ? JSON.stringify(body) : null,
         };
+        console.log("Sending request to " + `${BACKEND_URL}${path}`);
+        console.log("Backend URL: " + BACKEND_URL);
         const response = await fetch(`${BACKEND_URL}${path}`, options);
         
         try {
