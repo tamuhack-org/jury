@@ -1,8 +1,6 @@
 import Cookies from 'universal-cookie';
 
-// const BACKEND_URL = import.meta.env.VITE_JURY_URL;
-// TAMUhack fix lol
-const BACKEND_URL = "/api";
+const BACKEND_URL = import.meta.env.VITE_JURY_URL;
 
 
 export async function getRequest<T>(path: string, auth: string): Promise<FetchResponse<T>> {
