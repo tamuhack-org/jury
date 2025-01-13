@@ -13,7 +13,7 @@ interface DeletePopupProps {
 }
 
 function isProject(e: HideElement): e is Project {
-    return 'mu' in e;
+    return 'location' in e;
 }
 
 const DeletePopup = ({ element, close }: DeletePopupProps) => {
