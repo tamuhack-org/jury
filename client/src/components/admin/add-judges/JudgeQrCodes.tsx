@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Button from '../../Button';
 import { useOptionsStore } from '../../../store';
 import Dropdown from '../../Dropdown';
-import Card from '../../Card';
 
 const JudgeQrCodes = () => {
     const [track, setTrack] = useState('');
@@ -20,20 +19,20 @@ const JudgeQrCodes = () => {
     }, [options]);
 
     return (
-        <Card>
+        <div className="w-full h-full border-lightest border-2 p-8 rounded-sm">
             <div className="flex flex-col items-start h-full">
                 <h1 className="text-3xl mb-4">Add Judge by QR Code</h1>
-                <div className="flex flex-row w-full justify-center">
-                    <Button type="primary" href="/admin/qr" small className="mr-4 rounded-md">
+                <div className="flex flex-row w-full">
+                    <Button type="primary" href="/admin/qr" full flat className="mr-4 rounded-md">
                         General Judges
                     </Button>
                     {options && options.judge_tracks && (
-                        <div className='flex flex-row'>
-                            <div className="h-full w-12" />
+                        <>
                             <Button
                                 type="primary"
                                 href={`/admin/qr?track=${track}`}
-                                small
+                                full
+                                flat
                                 className="rounded-md"
                             >
                                 {track} Track Judges
@@ -42,13 +41,13 @@ const JudgeQrCodes = () => {
                                 options={[...options.tracks]}
                                 selected={track}
                                 setSelected={setTrack}
-                                className="ml-4 bg-white"
+                                className="ml-4"
                             />
-                        </div>
+                        </>
                     )}
                 </div>
             </div>
-        </Card>
+        </div>
     );
 };
 

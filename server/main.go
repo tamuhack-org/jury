@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"server/config"
 	"server/database"
@@ -12,6 +11,10 @@ import (
 )
 
 func main() {
+	// Load the logger
+	logger := logging.NewLogger()
+	logger.SystemLogf("Server started")
+
 	// Load the env file
 	err := godotenv.Load()
 	if err != nil {
@@ -20,16 +23,11 @@ func main() {
 
 	// Check for all necessary env variables)
 	config.CheckEnv()
+	logger.SystemLogf("Successfully loaded environment variables")
 
 	// Connect to the database
 	db := database.InitDb()
-
-	// Load the logger
-	logger, err := logging.NewLogger(db)
-	if err != nil {
-		panic(errors.New("failed to load logger: " + err.Error()))
-	}
-	logger.SystemLogf("Server restarted")
+	logger.SystemLogf("Connected to the database")
 
 	// Create the router and attach variables
 	r := router.NewRouter(db, logger)
