@@ -75,12 +75,55 @@ const ProjectsTable = () => {
         sortAndFilterProjects();
     }, [unsortedProjects]);
 
+    const exportProjects = () => {
+        console.log('Exporting projects');
+        console.log(projects);
+
+        if (!projects || projects.length === 0) {
+            console.error('No projects available for export.');
+            return;
+        }
+
+        const jsonString = JSON.stringify(projects, null, 2);
+        downloadFile(jsonString, 'projects.json', 'application/json');
+
+        const csvString = convertToCSV(projects);
+        downloadFile(csvString, 'projects.csv', 'text/csv');
+    };
+
+    // Helper function to trigger file download
+    const downloadFile = (content, fileName, contentType) => {
+        const blob = new Blob([content], { type: contentType });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Helper function to convert JSON to CSV
+    const convertToCSV = (data) => {
+        if (!Array.isArray(data) || data.length === 0) return '';
+
+        const keys = Object.keys(data[0]);
+        const csvRows = [];
+
+        csvRows.push(keys.join(','));
+
+        for (const row of data) {
+            csvRows.push(keys.map((key) => `"${row[key] || ''}"`).join(','));
+        }
+
+        return csvRows.join('\n');
+    };
+
     const sortAndFilterProjects = () => {
         // Filter by track if enabled
         const filteredProjects =
             options.judge_tracks && selectedTrack !== ''
                 ? unsortedProjects.filter(
-                      (project) => project.challenge_list.indexOf(selectedTrack) !== -1
+                      (project) => project.challenge_list.indexOf(selectedTrack) !== -1,
                   )
                 : unsortedProjects;
 
@@ -204,6 +247,7 @@ const ProjectsTable = () => {
                     ))}
                 </tbody>
             </table>
+            <button onClick={() => exportProjects()}>Export projects</button>
         </div>
     );
 };
